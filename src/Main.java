@@ -2,8 +2,9 @@ import java.util.HashMap;
 import java.util.Map;
 
 public class Main {
-    public static final int TRIAL_ROUNDS = 10000000;
+    public static final int TRIAL_ROUNDS = 100;
     public static final int SLEEP_DURATION = 1;
+    public static final int OUTLIER_THRESHOLD = 500;
 
     public static boolean stringEquals(String a, String b) {
         if (a.length() != b.length()) {
@@ -44,13 +45,21 @@ public class Main {
                 }
 
                 long totalTime = 0;
+                long avgCount = 0 ;
                 for (int x = 0; x < TRIAL_ROUNDS; x++) {
                     long timeTaken = timedEquals(testval, secretString);
-                    totalTime += timeTaken;
+                    if(timeTaken < OUTLIER_THRESHOLD) {
+                        totalTime += timeTaken;
+                        avgCount += 1;
+                    }
                 }
 
-                long timeAvg = totalTime / TRIAL_ROUNDS;
-                candidates.put(c, timeAvg);
+                if(avgCount == 0) {
+                    candidates.put(c, 0L);
+                } else {
+                    long timeAvg = totalTime / avgCount;
+                    candidates.put(c, timeAvg);
+                }
             }
 
             // Find the key with the highest value
@@ -71,7 +80,7 @@ public class Main {
     }
 
     public static void main(String[] args) {
-        String password = "abba";
+        String password = "abbacccc";
         int passwordLength = password.length();
 
         String guessedPassword = bruteForce(passwordLength, password);
